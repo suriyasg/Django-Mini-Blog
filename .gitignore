@@ -1,0 +1,25 @@
+# python
+venv
+__pycache__
+
+# Django
+/media/
+staticfiles/
+*.log
+
+# mac
+.DS_Store
+
+# VS Code
+.vscode/
+
+# envs
+.env
+.env.*
+!.env.example
+
+# Text backup files
+*.bak
+
+# Database
+*.sqlite3
