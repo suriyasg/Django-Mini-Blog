@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Home</h1>
+  <p>
+    Welcome to BlogSite, a website developed by
+    <em>Suriya and MDN Docs</em>!
+  </p>
+  <h2>Dynamic content</h2>
+  <p>The blog has the following record counts:</p>
+  <ul>
+    <li><strong>Blogs:</strong> {{ num_of_blogs }}</li>
+    <li><strong>Authors:</strong> {{ num_of_authors }}</li>
+    <li><strong>Comments:</strong> {{ num_of_comments }}</li>
+  </ul>
+{% endblock %}
