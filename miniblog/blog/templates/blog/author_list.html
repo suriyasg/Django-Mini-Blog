@@ -6,7 +6,7 @@
     <ul>
       {% for author in author_list %}
       <li>
-        <a href="{{ author.get_absolute_url }}">{{ author.user_name }}</a>
+        <a href="{{ author.get_absolute_url }}">{{ author.username }}</a>
         <!-- {% if author.blog %}
         <ol>
             {% for blog in author.blog %}

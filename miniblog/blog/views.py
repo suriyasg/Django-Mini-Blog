@@ -1,11 +1,16 @@
-import json
-import sys
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import Http404, HttpResponse
+
+from blog.forms import CommentForm
 from .models import Author, Blog, Comment
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 from django.views import generic
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
+from django.shortcuts import redirect
 
 def printRequest(request):
     # print(request.__dict__, file=sys.stderr) # print(request) -> <WSGIRequest: GET '/blog/'> 🌝
@@ -27,10 +32,16 @@ def index(request):
     num_of_authors = Author.objects.all().count()
     num_of_comments = Comment.objects.all().count()
 
+    # Number of visits to this view, as counted in the session variable.
+    num_of_visits = request.session.get('num_of_visits', 0)
+    num_of_visits += 1
+    request.session['num_of_visits'] = num_of_visits
+
     context = {
         "num_of_authors": num_of_authors,
         "num_of_blogs": num_of_blogs, 
-        "num_of_comments": num_of_comments
+        "num_of_comments": num_of_comments,
+        'num_of_visits': num_of_visits
     }
 
     # Render the HTML template index.html with the data in the context variable
@@ -43,8 +54,9 @@ def index(request):
 
 class BlogListView(generic.ListView):
     model=Blog
+    paginate_by = 1
 
-class AuthorListView(generic.ListView):
+class AuthorListView(LoginRequiredMixin, generic.ListView):
     model=Author
 
 class BlogDetailView(generic.DetailView):
@@ -59,5 +71,44 @@ class BlogDetailView(generic.DetailView):
 
 #     return render(request, 'blog/blog_detail.html', context={'blog': blog})
 
-class AuthorDetailView(generic.DetailView):
+
+# function-based views, the easiest way to restrict access to your functions is to 
+# apply the login_required decorator to your view function
+# or manually check request object in view
+# request.user.is_authenticated
+
+
+class AuthorDetailView(LoginRequiredMixin, generic.DetailView):
     model=Author
+
+@login_required
+def add_comment(request, pk):
+    print(request.method)
+    blog = get_object_or_404(Blog, pk=pk)
+    user = get_object_or_404(User, username=request.user.username)
+
+    # If this is a POST request then process the Form data
+    if request.method == "POST":
+        print(request.method == "POST")
+        # Create a form instance and populate it with data from the request (binding):
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            content = form.cleaned_data["content"]
+            new_comment = Comment(blog=blog, content=content, user=user)
+            new_comment.save()
+            return redirect('blog-detail', pk=pk)
+    
+    else:
+        print(request.method == "POST")
+        form = CommentForm()
+
+
+    context = {
+        'form': form,
+        'blog' : blog
+    }
+    return render(request, 'blog/add_comment.html', context)
+
+def edit_comment(request, pk):
+    pass

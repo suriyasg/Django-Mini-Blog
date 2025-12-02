@@ -5,14 +5,23 @@
 <p>posted on: {{ blog.posted_on }}</p>
 <p>{{ blog.content }}</p>
 <p>
-    Written by: <a href="{{ blog.author.get_absolute_url }}">{{ blog.author.user_name }}</a>
+    Written by: <a href="{{ blog.author.get_absolute_url }}">{{ blog.author.username }}</a>
 </p>
 <hr />
 <h4> Comments </h4>
-{% for comment in blog.comment_set.all %}
-    <p>{{ comment.content }}</p>
-    <p>commented by: <a href="{{ comment.author.get_absolute_url }}">{{ comment.author }}</a>  commented on: {{ comment.commented_on }}</p>
-{% empty %}
-    <p>Be first to comment!</p>
-{% endfor %}
+<!-- user is already need to logged in to view the detail page but just an example -->
+{% if user.is_authenticated %}
+    {% for comment in blog.comment_set.all %}
+        <p>{{ comment.content }}</p>
+        <p style="font-size: small; color: gray;"> <em>commented by: {{ comment.user.username }}  commented on: {{ comment.commented_on }}</em></p>
+        <hr>
+    {% empty %}
+        <p>Be first to comment!</p>
+    {% endfor %}
+    <a href="{% url 'add-comment' blog.id %}">add comment</a>
+    <br>
+{% else %}
+    Login to see comments
+    <li><a href="{% url 'login' %}?next={{ request.path }}">Login</a></li>
+{% endif %}
 {% endblock %}

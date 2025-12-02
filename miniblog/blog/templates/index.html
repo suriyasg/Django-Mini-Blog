@@ -13,4 +13,7 @@
     <li><strong>Authors:</strong> {{ num_of_authors }}</li>
     <li><strong>Comments:</strong> {{ num_of_comments }}</li>
   </ul>
+    <p>
+    You have visited this page {{ num_of_visits }} time{{ num_of_visits|pluralize }}.
+    </p>
 {% endblock %}

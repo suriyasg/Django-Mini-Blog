@@ -1,15 +1,17 @@
 from django.db import models
 from django.urls import reverse
 import uuid # Required for unique book instances
+from django.contrib.auth import get_user_model
 
 # Create your models here.
 
-class Author(models.Model):
+User = get_user_model()
+class Author(User):
     """Model representing an author."""
-    user_name = models.CharField(max_length=256, unique=True)
+    bio = models.CharField(max_length=1024, default="Author haven't added Bio")
 
     class Meta:
-        ordering = ['user_name']
+        ordering = ['username']
 
     def get_absolute_url(self):
         """Returns the URL to access a particular author instance."""
@@ -17,13 +19,12 @@ class Author(models.Model):
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.user_name}'
+        return f'{self.username}'
 
 class Blog(models.Model):
     """Model representing a Blog."""
     # We assume blog can only have one author, but authors can have multiple blogs.
     # Author as a string rather than object because it hasn't been declared yet in file.
-    
     id = models.UUIDField(
         primary_key=True, 
         default=uuid.uuid4,
@@ -53,7 +54,7 @@ class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4,
                           help_text="Unique ID for this particular comment")
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE) # if blog get deleted comments refering blog also get deleted
-    author = models.ForeignKey(Author, on_delete=models.CASCADE) # if user account get deleted comments by them also get deleted
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # if user account get deleted comments by them also get deleted
     commented_on = models.DateTimeField(auto_now_add=True)
     content = models.TextField(max_length=500, help_text="Write your comment")
 
